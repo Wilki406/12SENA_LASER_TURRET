@@ -9,4 +9,4 @@ of integrated and controlled systems, and document its use fairly. They effectiv
 risk management methods throughout the creation of the system. They use a range of materials, tools, equipment
 and components. Students test, diagnose and analyse the performance of the system. They evaluate their process
 and the system. Students expand their knowledge of emerging developments and innovations through their investigation and analysis
-of a range of engineered systems. They analyse a specific emerging innovation, including its impacts.
+of a range of engineered systems.
