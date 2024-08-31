@@ -8,7 +8,6 @@
 #define NUM_LEDS 1
 #define LASER_PIN 5
 
-
 #define BRIGHTNESS 15
 
 // HUSKYLENS green line >> SDA-A4; blue line >> SCL-A5
@@ -21,8 +20,6 @@ Servo YTiltServo;
 
 const int defaultDegree = 90;
 byte systemState = 0;
-
-void printResult(HUSKYLENSResult result);
 
 void setup() {
 
