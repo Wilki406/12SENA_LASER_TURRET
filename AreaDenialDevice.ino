@@ -17,9 +17,16 @@ HUSKYLENS huskylens;
 Servo XPanServo;
 Servo YTiltServo;
 
-
 const int defaultDegree = 90;
 byte systemState = 0;
+
+/*
+
+State 0  =  Default servos
+State 1  =  Span 180*, finding target
+State 2  =  Laser do things
+
+*/
 
 void setup() {
 
@@ -64,6 +71,8 @@ void loop() {
     XPanServo.write(defaultDegree);
     YTiltServo.write(defaultDegree);
 
+    delay(1000);
+
     Serial.println(F("State 0, Servos at middle"));
     systemState = 1;
 
@@ -72,7 +81,11 @@ void loop() {
 
   if (systemState = 1) {
 
+  huskylens.writeAlgorithm(ALGORITHM_OBJECT_TRACKING); // Husky to Object tracking mode
+
   Serial.println(F("State 1"));
+
+
   if (!huskylens.request()) {
     Serial.println(F("Fail to request data from Husky, check connection"));
     return;
@@ -103,6 +116,10 @@ void loop() {
       
       }
     }
+  }
+
+  if (systemState = 2) {
+    // WIP
   }
 }
 
