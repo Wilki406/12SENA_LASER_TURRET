@@ -19,6 +19,7 @@ Servo YTiltServo;
 
 const int defaultDegree = 90;
 byte systemState = 0;
+int targetID = 1;
 
 /*
 
@@ -62,30 +63,34 @@ void setup() {
   delay(3000);
   }
 
+  huskylens.writeAlgorithm(ALGORITHM_OBJECT_TRACKING); // Husky to Object tracking mode
+
 }
 
 void loop() {
-
-  if (systemState = 0) {
+  if (systemState == 0) {
     // Servo initialization function
     XPanServo.write(defaultDegree);
     YTiltServo.write(defaultDegree);
+    
 
-    delay(1000);
+    delay(3000);
 
     Serial.println(F("State 0, Servos at middle"));
     systemState = 1;
-
   }
 
+  if (systemState == 1) {
+    Serial.println(F("State 1"));
+    handleStateOne();
+  }
 
-  if (systemState = 1) {
+  if (systemState == 2) {
+    handleStateTwo();
+  }
+}
 
-  huskylens.writeAlgorithm(ALGORITHM_OBJECT_TRACKING); // Husky to Object tracking mode
-
-  Serial.println(F("State 1"));
-  
-
+void handleStateOne() {
   if (!huskylens.request()) {
     Serial.println(F("Fail to request data from Husky, check connection"));
     return;
@@ -93,40 +98,62 @@ void loop() {
 
   if (!huskylens.isLearned()) {
     Serial.println(F("Nothing Learned"));
-    fill_solid(leds, NUM_LEDS, CRGB::Red);
+    fill_solid(leds, NUM_LEDS, CRGB::Yellow);
     FastLED.show();
     delay(1000);
   } 
-
-  else if (!huskylens.available()) {
-    Serial.println(F("No object detected"));
+  else if (huskylens.isLearned()) {
+    Serial.println(F("Object Available for tracking"));
     fill_solid(leds, NUM_LEDS, CRGB::Blue);
     FastLED.show();
     delay(1000);
 
-  } 
-
-  else {
-
-    if (huskylens.available()) {
-      Serial.println(F("Object Detected"))
-      ServoSweep(XPanServo) // WIP to integrate with the SWEEP AND THE LOOK FOR OBJECT
+    
+    bool objectDetected = false;
+    for (int xpos = 0; xpos <= 180; xpos += 1) {
+      XPanServo.write(xpos);
+      delay(25);
+      if (huskylens.available()) {
+          objectDetected = true;
+          Serial.println("Object ID 1 detected!");
+          systemState = 2;
+          return;
+        }
       }
+    
+
+    for (int xpos = 180; xpos >= 0; xpos -= 1) {
+      XPanServo.write(xpos);
+      delay(25);
+      if (huskylens.available()) {
+          objectDetected = true;
+          Serial.println("Object ID 1 detected!");
+          systemState = 2;
+          return;
+        }
+      }
+    if (objectDetected) {
+      systemState = 2;
     }
   }
+}
 
-  if (systemState = 2) {
-    // WIP
+void handleStateTwo() {
+  Serial.println(F("STATE 2"));
 
-    while (huskylens.available()) {
-      HUSKYLENSResult result = huskylens.read();
-      printResult(result);
-      fill_solid(leds, NUM_LEDS, CRGB::Green);
-      FastLED.show();
-      
-      }
-
+  while (huskylens.available()) {
+    HUSKYLENSResult result = huskylens.read();
+    printResult(result);
+    fill_solid(leds, NUM_LEDS, CRGB::Green);
+    FastLED.show();
   }
+
+  YTiltServo.write(180);
+  YTiltServo.write(0);
+
+  delay(1000);
+
+  systemState = 0;
 }
 
 void setLEDColor(CRGB color) {
@@ -137,17 +164,6 @@ void setLEDColor(CRGB color) {
 void printResult(HUSKYLENSResult result) {
   if (result.command == COMMAND_RETURN_BLOCK) {
     Serial.println(String() + F("Block:xCenter=") + result.xCenter + F(",yCenter=") + result.yCenter + F(",width=") + result.width + F(",height=") + result.height + F(",ID=") + result.ID);
-  }
-}
-
-void servoSweep(Servo &servo) {
-  for (int pos = 0; pos <= 180; pos += 1) {
-    servo.write(pos);
-    delay(15);
-  }
-  for (int pos = 180; pos >= 0; pos -= 1) {
-    servo.write(pos);
-    delay(15);
   }
 }
 
