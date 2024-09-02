@@ -84,7 +84,7 @@ void loop() {
   huskylens.writeAlgorithm(ALGORITHM_OBJECT_TRACKING); // Husky to Object tracking mode
 
   Serial.println(F("State 1"));
-
+  
 
   if (!huskylens.request()) {
     Serial.println(F("Fail to request data from Husky, check connection"));
@@ -108,6 +108,16 @@ void loop() {
 
   else {
 
+    if (huskylens.available()) {
+      Serial.println(F("Object Detected"))
+      ServoSweep(XPanServo) // WIP to integrate with the SWEEP AND THE LOOK FOR OBJECT
+      }
+    }
+  }
+
+  if (systemState = 2) {
+    // WIP
+
     while (huskylens.available()) {
       HUSKYLENSResult result = huskylens.read();
       printResult(result);
@@ -115,11 +125,7 @@ void loop() {
       FastLED.show();
       
       }
-    }
-  }
 
-  if (systemState = 2) {
-    // WIP
   }
 }
 
@@ -131,6 +137,17 @@ void setLEDColor(CRGB color) {
 void printResult(HUSKYLENSResult result) {
   if (result.command == COMMAND_RETURN_BLOCK) {
     Serial.println(String() + F("Block:xCenter=") + result.xCenter + F(",yCenter=") + result.yCenter + F(",width=") + result.width + F(",height=") + result.height + F(",ID=") + result.ID);
+  }
+}
+
+void servoSweep(Servo &servo) {
+  for (int pos = 0; pos <= 180; pos += 1) {
+    servo.write(pos);
+    delay(15);
+  }
+  for (int pos = 180; pos >= 0; pos -= 1) {
+    servo.write(pos);
+    delay(15);
   }
 }
 
