@@ -8,6 +8,7 @@
 #define NUM_LEDS 1
 #define LASER_PIN 5
 
+
 #define BRIGHTNESS 15
 
 // HUSKYLENS green line >> SDA-A4; blue line >> SCL-A5
@@ -107,36 +108,16 @@ void handleStateOne() {
     fill_solid(leds, NUM_LEDS, CRGB::Blue);
     FastLED.show();
     delay(1000);
-
-    
-    bool objectDetected = false;
-    for (int xpos = 0; xpos <= 180; xpos += 1) {
-      XPanServo.write(xpos);
-      delay(25);
-      if (huskylens.available()) {
-          objectDetected = true;
-          Serial.println("Object ID 1 detected!");
-          systemState = 2;
-          return;
-        }
-      }
-    
-
-    for (int xpos = 180; xpos >= 0; xpos -= 1) {
-      XPanServo.write(xpos);
-      delay(25);
-      if (huskylens.available()) {
-          objectDetected = true;
-          Serial.println("Object ID 1 detected!");
-          systemState = 2;
-          return;
-        }
-      }
-    if (objectDetected) {
-      systemState = 2;
-    }
-  }
 }
+
+    if (huskylens.available()) {
+      Serial.println("Object detected!");
+      systemState = 2;
+      return;
+  }
+
+}
+
 
 void handleStateTwo() {
   Serial.println(F("STATE 2"));
@@ -148,10 +129,31 @@ void handleStateTwo() {
     FastLED.show();
   }
 
+  // Laser functionality
+  laserOn();
   YTiltServo.write(180);
+  delay(500);
+  YTiltServo.write(60);
+  XPanServo.write(120);
+  delay(500);
+  YTiltServo.write(90);
+  delay(500);
   YTiltServo.write(0);
-
+  XPanServo.write(50);
+  delay(3000);
+  YTiltServo.write(90);
+  XPanServo.write(90);
   delay(1000);
+  XPanServo.write(0);
+  YTiltServo.write(0);
+  delay(1200);
+  XPanServo.write(180);
+  YTiltServo.write(180);
+  
+
+  delay(3000);
+
+  laserOff();
 
   systemState = 0;
 }
