@@ -22,6 +22,14 @@ const int defaultDegree = 90;
 byte systemState = 0;
 int targetID = 1;
 
+const int minAngle = 0;
+const int maxAngle = 180;
+const int moveDelay = 50;  // Delay between movements (ms)
+const int maxChange = 5;   // Maximum change in angle per step
+
+int currentX = 90;  // Start at middle position
+int currentY = 90;  // Start at middle position
+
 /*
 
 State 0  =  Default servos
@@ -129,31 +137,36 @@ void handleStateTwo() {
     FastLED.show();
   }
 
-  // Laser functionality
+  // Laser functionality with random movement
   laserOn();
-  YTiltServo.write(180);
-  delay(500);
-  YTiltServo.write(60);
-  XPanServo.write(120);
-  delay(500);
-  YTiltServo.write(90);
-  delay(500);
-  YTiltServo.write(0);
-  XPanServo.write(50);
-  delay(3000);
-  YTiltServo.write(90);
-  XPanServo.write(90);
-  delay(1000);
-  XPanServo.write(0);
-  YTiltServo.write(0);
-  delay(1200);
-  XPanServo.write(180);
-  YTiltServo.write(180);
   
-
-  delay(3000);
+  // Move servos randomly for 30 seconds
+  unsigned long startTime = millis();
+  while (millis() - startTime < 30000) {
+    // Calculate new positions
+    int newX = constrain(currentX + random(-maxChange, maxChange + 1), minAngle, maxAngle);
+    int newY = constrain(currentY + random(-maxChange, maxChange + 1), minAngle, maxAngle);
+    
+    // Move servos to new positions
+    XPanServo.write(newX);
+    YTiltServo.write(newY);
+    
+    // Update current positions
+    currentX = newX;
+    currentY = newY;
+    
+    delay(moveDelay);
+  }
 
   laserOff();
+
+  // Reset to default position
+  XPanServo.write(defaultDegree);
+  YTiltServo.write(defaultDegree);
+  currentX = defaultDegree;
+  currentY = defaultDegree;
+
+  delay(3000);
 
   systemState = 0;
 }
